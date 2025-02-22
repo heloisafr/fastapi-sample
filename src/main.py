@@ -10,12 +10,22 @@ def home():
     return {"msg": "The API is up!"}
 
 
-# Não precisa validação (tipo e obrigatoria) das entradas, o framework faz isso para vc
-# q: Union[str, None], quer dizer que q pode ser uma string ou None
-# Eu consegui dar pau nos docs ao retirar o "= None" do q
 @app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+def read_item(item_id: int):
+    """
+    Não há necessidade de validação (tipagem ou obrigatoria) das entradas,
+    o framework faz isso para você
+    """
+    return {"item_id": item_id}
+
+
+"""
+q: Union[str, None], quer dizer que "q" pode ser uma string ou None
+Se retirar o "= None" do q dá pau na documentação"""
+# @app.get("/items/{item_id}")
+# def read_item(item_id: int, q: Union[str, None] = None):
+#     return {"item_id": item_id, "q": q}
+
 
 class Item(BaseModel):
     name: str
