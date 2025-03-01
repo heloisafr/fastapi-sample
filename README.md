@@ -23,11 +23,6 @@ Iterative documentation generated automaticaly.
  - http://127.0.0.1:8000/openapi.json (OpenAPI Schema)
 
 
-### Following
-https://fastapi.tiangolo.com/tutorial/
 
-#### Next 
-Poderia ser async ao definir a função
-https://fastapi.tiangolo.com/async/#concurrency-and-async-await
 
 
