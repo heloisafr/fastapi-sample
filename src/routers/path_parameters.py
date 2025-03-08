@@ -1,10 +1,7 @@
 from enum import Enum
-from typing import Union
+from fastapi import APIRouter
 
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-app = FastAPI()
+router = APIRouter()
 
 
 class CNNName(str, Enum):
@@ -13,8 +10,8 @@ class CNNName(str, Enum):
     lenet = "lenet"
 
 
-@app.get("/items/book")
-def read_item_book():
+@router.get("/items/book")
+def read_item_book() -> None:
     """
     Path parameter sample
     The order matter!
@@ -26,8 +23,8 @@ def read_item_book():
     return {"item_id": "book"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int):
+@router.get("/items/{item_id}")
+def read_item(item_id: int) -> None:
     """
     Path parameter sample
     Não há necessidade de validação (tipagem ou obrigatoria) das entradas,
@@ -36,8 +33,8 @@ def read_item(item_id: int):
     return {"item_id": item_id}
 
 
-@app.get("/models/{model_name}")
-def get_model(model_name: CNNName):
+@router.get("/models/{model_name}")
+def get_model(model_name: CNNName) -> None:
     """
     Path parameter sample using Enum as input
     """
@@ -53,31 +50,9 @@ def get_model(model_name: CNNName):
     return  {"model_name": model_name, "message": message}
 
 
-@app.get("/files/{file_path:path}")
-def get_file(file_path: str):
+@router.get("/files/{file_path:path}")
+def get_file(file_path: str) -> None:
     """
     Path parameter containing a path
     """
     return {"file_path": file_path}
-
-
-"""
-q: Union[str, None], quer dizer que "q" pode ser uma string ou None
-Se retirar o "= None" do q dá pau na documentação"""
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Union[str, None] = None):
-#     return {"item_id": item_id, "q": q}
-
-
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
-# is_offer: Union[bool, None], que dizer que is_offer pode ser um boll ou None
-
-# Não precisa validação (tipo e obrigatoria) das entradas, o framework faz isso para vc
-# pode-se usar um tipo complexo (json) como entrada, por ex: Item
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_price": item.price, "item_id": item_id}
-
