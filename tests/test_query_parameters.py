@@ -22,7 +22,7 @@ def test_query_parameters_read_items_ok(parameters, expected_length) -> None:
     assert len(response.json()) == expected_length
 
 
-def test_query_parameters_read_things_none_ok() -> None:
+def test_query_parameters_get_thing_none_ok() -> None:
     """
     Test query parameter with optional parameter, sending none
     """
@@ -34,7 +34,7 @@ def test_query_parameters_read_things_none_ok() -> None:
     assert response.json()["q"] is None
 
 
-def test_query_parameters_read_things_something_ok() -> None:
+def test_query_parameters_get_thing_ok() -> None:
     """
     Test query parameter with optional parameter, sending some value
     """
@@ -57,7 +57,7 @@ def test_query_parameters_read_things_something_ok() -> None:
         ("", "long"),
     ]
 )
-def test_query_parameters_read_artifacts_ok(parameters, expected_description) -> None:
+def test_query_parameters_get_artifact_ok(parameters, expected_description) -> None:
     """
     Test query parameters with default boolean value
     """
@@ -67,19 +67,52 @@ def test_query_parameters_read_artifacts_ok(parameters, expected_description) ->
     assert expected_description in response.json()["description"]
 
 
-def test_query_parameters_read_devices_ok() -> None:
+def test_query_parameters_read_stuffs_something_ok() -> None:
+    """
+    Test query parameter with optional parameter with min_length, max_length and pattern validation
+    """
+    response = client.get("/things/?q=something")
+    assert response.status_code == 200
+    assert "q" in response.json()
+    assert "something" == response.json()["q"]
+
+
+@pytest.mark.parametrize(
+    "q, expected_error",
+    [
+        ("somethings", "String should have at most 9 characters"),
+        ("new", "String should have at least 4 characters"),
+        ("thing", "String should match pattern"),
+    ]
+)
+def test_query_parameters_read_stuffs_something_error(q, expected_error) -> None:
+    """
+    Test query parameter with optional parameter with min_length, max_length and pattern validation
+    """
+    response = client.get(f"/things/?q={q}")
+    assert response.status_code == 422
+    assert expected_error in response.text
+
+
+@pytest.mark.parametrize(
+    "model, expected_model", [
+        (None, ""),
+        ("something", "something")
+    ]
+)
+def test_query_parameters_required_ok(model, expected_model) -> None:
     """
     Test query parameter with required parameter
     """
-    response = client.get("/devices/1/?model=something")
+    response = client.get("/devices/1/", params={"model":model})
     assert response.status_code == 200
     assert "item_id" in response.json()
     assert "model" in response.json()
     assert 1 == response.json()["item_id"]
-    assert "something" == response.json()["model"]
+    assert expected_model == response.json()["model"]
 
 
-def test_query_parameters_read_devices_error_missing_value() -> None:
+def test_query_parameters_required_error() -> None:
     """
     Test query parameter with required parameter
     """
@@ -87,3 +120,45 @@ def test_query_parameters_read_devices_error_missing_value() -> None:
     assert response.status_code == 422
     assert "Field required" in response.text
 
+
+def test_query_parameters_required_with_validation_ok() -> None:
+    """
+    Test query parameter with required parameter and min_length validation
+    """
+    response = client.get("/devices", params={"model": "something"})
+    assert response.status_code == 200
+    assert "model" in response.json()
+    assert "something" == response.json()["model"]
+
+
+@pytest.mark.parametrize(
+    "params, expected_error", [
+        (None, "Field required"),
+        ({"model": None}, "String should have at least 4 characters"),
+        ({"model": "new"}, "String should have at least 4 characters")
+    ]
+)
+def test_query_parameters_required_with_validation_error(params, expected_error) -> None:
+    """
+    Test query parameter with required parameter and min_length validation
+    """
+    response = client.get("/devices", params=params)
+    assert response.status_code == 422
+    assert expected_error in response.text
+
+
+@pytest.mark.parametrize(
+    "params, expected_error", [
+        (None, "Field required"),
+        ({"model": None}, "String should have at least 5 characters"),
+        ({"model": "new"}, "String should have at least 5 characters")
+    ]
+)
+def test_query_parameters_required_can_be_none_with_validation_error(params, expected_error) -> None:
+    """
+    Test query parameter with required parameter and min_length validation
+    Even though required could be None
+    """
+    response = client.get("/devices/1/123/", params=params)
+    assert response.status_code == 422
+    assert expected_error in response.text
