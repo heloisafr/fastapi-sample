@@ -6,25 +6,6 @@ router = APIRouter()
 items_db = [{"item_name": "One"}, {"item_name": "Two"}, {"item_name": "Tree"}, {"item_name": "Four"}]
 
 
-@router.get("/items/")
-def read_items(skip: int = 0, limit: int = 10):
-    """
-    Query parameter (skip and limit) with default value
-    """
-    return items_db[skip: skip + limit]
-
-
-@router.get("/artifacts/{item_id}")
-def read_artifacts(item_id: int, short_description: bool = False):
-    """
-    Query parameter (short_description) with default boolean parameter
-    """
-    item = {"item_id": item_id, "description": "This is a long description"}
-    if short_description:
-        item.update({"description": "This is a short description"})
-    return item
-
-
 @router.get("/things/{item_id}")
 def read_things(item_id: int, q: str | None = None):
     """
@@ -33,6 +14,25 @@ def read_things(item_id: int, q: str | None = None):
     Se retirar o "= None" do "q" quebra documentação
     """
     return {"item_id": item_id, "q": q}
+
+
+@router.get("/items/")
+def read_items(skip: int = 0, limit: int = 10):
+    """
+    Optional query parameter (skip and limit) with default value
+    """
+    return items_db[skip: skip + limit]
+
+
+@router.get("/artifacts/{item_id}")
+def read_artifacts(item_id: int, short_description: bool = False):
+    """
+    Optional query parameter (short_description) with default boolean parameter
+    """
+    item = {"item_id": item_id, "description": "This is a long description"}
+    if short_description:
+        item.update({"description": "This is a short description"})
+    return item
 
 
 @router.get("/things")

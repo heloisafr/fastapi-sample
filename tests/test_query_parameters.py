@@ -6,23 +6,19 @@ from src.main import app
 client = TestClient(app)
 
 
-@pytest.mark.parametrize(
-    "parameters, expected_length", [
-        ("?skip=1&limit=10", 3),
-        ("?skip=10", 0),
-        ("", 4),
-    ]
-)
-def test_query_parameters_read_items_ok(parameters, expected_length) -> None:
+def test_query_parameters_optional_ok() -> None:
     """
-    Test query parameters with default values
+    Test query parameter with optional parameter, sending some value
     """
-    response = client.get(f"/items/{parameters}")
+    response = client.get("/things/1/?q=something")
     assert response.status_code == 200
-    assert len(response.json()) == expected_length
+    assert "item_id" in response.json()
+    assert "q" in response.json()
+    assert 1 == response.json()["item_id"]
+    assert "something" == response.json()["q"]
 
 
-def test_query_parameters_get_thing_none_ok() -> None:
+def test_query_parameters_optional_none_ok() -> None:
     """
     Test query parameter with optional parameter, sending none
     """
@@ -34,16 +30,20 @@ def test_query_parameters_get_thing_none_ok() -> None:
     assert response.json()["q"] is None
 
 
-def test_query_parameters_get_thing_ok() -> None:
+@pytest.mark.parametrize(
+    "parameters, expected_length", [
+        ("?skip=1&limit=10", 3),
+        ("?skip=10", 0),
+        ("", 4),
+    ]
+)
+def test_query_parameters_optional_default_ok(parameters, expected_length) -> None:
     """
-    Test query parameter with optional parameter, sending some value
+    Test query parameters with default values
     """
-    response = client.get("/things/1/?q=something")
+    response = client.get(f"/items/{parameters}")
     assert response.status_code == 200
-    assert "item_id" in response.json()
-    assert "q" in response.json()
-    assert 1 == response.json()["item_id"]
-    assert "something" == response.json()["q"]
+    assert len(response.json()) == expected_length
 
 
 @pytest.mark.parametrize(
@@ -57,7 +57,7 @@ def test_query_parameters_get_thing_ok() -> None:
         ("", "long"),
     ]
 )
-def test_query_parameters_get_artifact_ok(parameters, expected_description) -> None:
+def test_query_parameters_optional_default_boolean_ok(parameters, expected_description) -> None:
     """
     Test query parameters with default boolean value
     """
@@ -67,7 +67,7 @@ def test_query_parameters_get_artifact_ok(parameters, expected_description) -> N
     assert expected_description in response.json()["description"]
 
 
-def test_query_parameters_read_stuffs_something_ok() -> None:
+def test_query_parameters_optional_with_validation_ok() -> None:
     """
     Test query parameter with optional parameter with min_length, max_length and pattern validation
     """
@@ -85,7 +85,7 @@ def test_query_parameters_read_stuffs_something_ok() -> None:
         ("thing", "String should match pattern"),
     ]
 )
-def test_query_parameters_read_stuffs_something_error(q, expected_error) -> None:
+def test_query_parameters_optional_with_validation_error(q, expected_error) -> None:
     """
     Test query parameter with optional parameter with min_length, max_length and pattern validation
     """
