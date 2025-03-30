@@ -7,7 +7,7 @@ from src.routers import (request_body,
 app = FastAPI()
 app.include_router(request_body.router)
 app.include_router(path_parameters.router, prefix='/path')
-app.include_router(query_parameters.router)
+app.include_router(query_parameters.router, prefix='/query')
 app.include_router(custom_validation.router, prefix='/custom-validation')
 
 

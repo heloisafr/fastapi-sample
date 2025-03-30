@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query
-from typing import Annotated
+from pydantic import BaseModel, Field
+from typing import Annotated, Literal
 
 router = APIRouter()
 
@@ -102,3 +103,22 @@ def read_artifacts(
     return {"item_id": item_id, "model": model}
 
 
+class FilterParams(BaseModel):
+
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
+
+    # it is optional
+    # means that any extra parameter wont be acceptable and an error will be fire
+    model_config = {"extra": "forbid"}
+
+
+@router.get("/items")
+def read_items(filter_query: Annotated[FilterParams, Query()]):
+    """
+    Sample using a pydantic model
+    The advantage is that models are reusable
+    """
+    return filter_query
