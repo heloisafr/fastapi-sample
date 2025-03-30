@@ -1,5 +1,7 @@
 from enum import Enum
-from fastapi import APIRouter
+from fastapi import APIRouter, Path
+from typing import Annotated
+
 
 router = APIRouter()
 
@@ -11,7 +13,7 @@ class CNNName(str, Enum):
 
 
 @router.get("/items/book")
-def read_item_book() -> None:
+def read_item_book():
     """
     Path parameter sample
     The order matter!
@@ -24,7 +26,7 @@ def read_item_book() -> None:
 
 
 @router.get("/items/{item_id}")
-def read_item(item_id: int) -> None:
+def read_item(item_id: int):
     """
     Path parameter sample
     Não há necessidade de validação (tipagem ou obrigatoria) das entradas,
@@ -33,8 +35,17 @@ def read_item(item_id: int) -> None:
     return {"item_id": item_id}
 
 
+@router.get("/devices/{device_id}")
+def read_devices(device_id: Annotated[int, Path(ge=1, lt=1000)]):
+    """
+    Path parameter sample with "greater than or equal" and "less than" validation
+    The same applies for gt "greater than" and le "less than or equal"
+    """
+    return {"device_id": device_id}
+
+
 @router.get("/models/{model_name}")
-def get_model(model_name: CNNName) -> None:
+def get_model(model_name: CNNName):
     """
     Path parameter sample using Enum as input
     """
@@ -51,7 +62,7 @@ def get_model(model_name: CNNName) -> None:
 
 
 @router.get("/files/{file_path:path}")
-def get_file(file_path: str) -> None:
+def get_file(file_path: str):
     """
     Path parameter containing a path
     """
