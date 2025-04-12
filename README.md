@@ -1,6 +1,6 @@
 # FastAPI Sample APP
 
-This is sample app based on FastAPI documentation.
+Sample collection based on FastAPI documentation.
 
 References: [https://fastapi.tiangolo.com/tutorial/](fastapi)
 
